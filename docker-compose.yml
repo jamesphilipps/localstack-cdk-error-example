@@ -1,0 +1,23 @@
+version: "3.9"
+
+networks:
+  example_platform:
+    driver: bridge
+services:
+  localstack:
+    container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
+    image: localstack/localstack-pro
+    networks:
+      - example_platform
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # external services port range
+    environment:
+      - DEBUG=${DEBUG-}
+      - LS_LOG=${LS_LOG-}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
+      - LAMBDA_DOCKER_FLAGS="-eAWS_LAMBDA_FUNCTION_MEMORY_SIZE=256" # increase memory limit for Node.js
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
